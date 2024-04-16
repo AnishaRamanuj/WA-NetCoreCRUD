@@ -1,0 +1,245 @@
+USE [CreatewebApp]
+GO
+/****** Object:  Table [dbo].[Usertbl]    Script Date: 17-07-2023 03:36:02 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Usertbl](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[FullName] [nvarchar](max) NOT NULL,
+	[MobileNumber] [nvarchar](10) NOT NULL,
+	[Email] [nvarchar](max) NOT NULL,
+	[Password] [nvarchar](max) NOT NULL,
+	[DateOfBirth] [date] NOT NULL,
+	[Gender] [nvarchar](max) NOT NULL,
+	[Hobbies] [nvarchar](max) NULL,
+	[RoleId] [int] NOT NULL,
+	[LastLoggedIn] [bit] NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+SET IDENTITY_INSERT [dbo].[Usertbl] ON 
+
+INSERT [dbo].[Usertbl] ([Id], [FullName], [MobileNumber], [Email], [Password], [DateOfBirth], [Gender], [Hobbies], [RoleId], [LastLoggedIn]) VALUES (1, N'Admin', N'1236547890', N'admin@yopmail.com', N'Admin@00', CAST(N'2001-12-12' AS Date), N'Female', N'Reading,coding', 1, 0)
+SET IDENTITY_INSERT [dbo].[Usertbl] OFF
+GO
+ALTER TABLE [dbo].[Usertbl] ADD  CONSTRAINT [DF_Usertbl_LastLoggedIn]  DEFAULT ((0)) FOR [LastLoggedIn]
+GO
+/****** Object:  StoredProcedure [dbo].[sp_AddEditUser]    Script Date: 17-07-2023 03:36:02 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		Anisha
+-- Create date: 13-07-2023
+-- Description:	register a user
+-- exec [sp_RegisterUser]
+-- =============================================
+CREATE PROCEDURE [dbo].[sp_AddEditUser]
+   @ID INT,
+   @FullName NVARCHAR(MAX),
+   @MobileNumber NVARCHAR(10),
+   @Email NVARCHAR(MAX),
+   @Password NVARCHAR(MAX),
+   @DateOfBirth DATE,
+   @Gender NVARCHAR(MAX),
+   @Hobbies NVARCHAR(MAX),
+   @RoleId int = 2
+AS
+BEGIN
+   SET NOCOUNT ON;
+   -- Check if the email or mobile number already exists
+    IF EXISTS(SELECT 1 FROM Usertbl WHERE (Email = @Email OR MobileNumber = @MobileNumber) AND  @ID=0)
+   BEGIN
+       THROW 50000, 'Email or mobile number already exists.', 1;
+       RETURN;
+
+   END
+    ELSE IF EXISTS(SELECT 1 FROM Usertbl WHERE Id=@ID AND @ID <>0 )
+	 BEGIN
+	 UPDATE Usertbl
+   SET 
+       FullName = @FullName,
+       MobileNumber = @MobileNumber,
+       Email = @Email,
+       Password = @Password,
+       DateOfBirth = @DateOfBirth,
+       Gender = @Gender,
+       Hobbies = @Hobbies,
+	   RoleId = @RoleId
+   WHERE ID = @ID;
+   END
+   ELSE
+   BEGIN
+   INSERT INTO [dbo].[Usertbl]
+           ([FullName]
+           ,[MobileNumber]
+           ,[Email]
+           ,[Password]
+           ,[DateOfBirth]
+           ,[Gender]
+           ,[Hobbies]
+           ,[RoleId]
+		   ,[LastLoggedIn])
+     VALUES
+           (@FullName,
+			@MobileNumber,
+			@Email,
+			@Password,
+			@DateOfBirth,
+			@Gender,
+			@Hobbies,
+			@RoleId,
+			0)
+   END
+   END;
+GO
+/****** Object:  StoredProcedure [dbo].[sp_DeleteUser]    Script Date: 17-07-2023 03:36:02 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[sp_DeleteUser]
+   @ID INT
+AS
+BEGIN
+   SET NOCOUNT ON;
+
+   DELETE FROM Usertbl
+   WHERE ID = @ID;
+END
+GO
+/****** Object:  StoredProcedure [dbo].[sp_GetAllUserDetails]    Script Date: 17-07-2023 03:36:02 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[sp_GetAllUserDetails]
+AS
+BEGIN
+   SET NOCOUNT ON;
+
+   SELECT *
+   FROM Usertbl;
+END
+GO
+/****** Object:  StoredProcedure [dbo].[sp_GetUserByID]    Script Date: 17-07-2023 03:36:02 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+Create procedure [dbo].[sp_GetUserByID]
+(    
+   @Id int
+)    
+as    
+Begin    
+   SELECT * FROM Usertbl WHERE Id= @Id
+End
+GO
+/****** Object:  StoredProcedure [dbo].[sp_LoginUser]    Script Date: 17-07-2023 03:36:02 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[sp_LoginUser]
+   @UserName NVARCHAR(MAX),
+   @Password NVARCHAR(MAX)
+AS
+BEGIN
+   SET NOCOUNT ON;
+
+   -- Check if the user exists and the password is correct
+   IF EXISTS(SELECT 1 FROM Usertbl WHERE (MobileNumber = @UserName OR Email = @UserName) AND Password = @Password)
+   BEGIN
+
+------- Update the LastLoggedIn field with the current timestamp
+      UPDATE Usertbl SET LastLoggedIn = 0
+
+       UPDATE Usertbl SET LastLoggedIn = 1 WHERE (MobileNumber = @UserName OR Email = @UserName);
+
+
+-----------------------------------------------
+       SELECT 'Login successful' AS Message;
+   END
+   ELSE
+   BEGIN
+       THROW 50000, 'Invalid username or password', 1;
+   END
+END
+GO
+/****** Object:  StoredProcedure [dbo].[sp_UpdateUserbyId]    Script Date: 17-07-2023 03:36:02 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		Anisha
+-- Create date: 13-07-2023
+-- Description:	Update user details
+-- =============================================
+create PROCEDURE [dbo].[sp_UpdateUserbyId] 
+	-- Add the parameters for the stored procedure here
+	@Id int,
+	@FullName nvarchar(50),
+	@MobileNumber nvarchar(10),
+	@Email nvarchar(50),
+	@Password nvarchar(10),
+	@DateOfBirth DATE,
+	@Gender nvarchar(50),
+	@Hobbies nvarchar(50)
+AS
+BEGIN
+	UPDATE [dbo].[Usertbl]
+	   SET [FullName] = @FullName
+		  ,[MobileNumber] = @MobileNumber
+		  ,[Email] = @Email
+		  ,[Password] = @Password
+		  ,[DateOfBirth] =  @DateOfBirth
+		  ,[Gender] = @Gender
+		  ,[Hobbies] = @Hobbies
+	 WHERE Id=@Id
+
+	 SELECT CAST(1 AS BIT) IsSuccess,
+				'Updated Successfully' AS Message
+END
+GO
+/****** Object:  StoredProcedure [dbo].[sp_UpdateUserDetails]    Script Date: 17-07-2023 03:36:02 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[sp_UpdateUserDetails]
+   @ID INT,
+   @FullName NVARCHAR(MAX),
+   @MobileNumber NVARCHAR(MAX),
+   @Email NVARCHAR(MAX),
+   @Password NVARCHAR(MAX),
+   @DateOfBirth DATE,
+   @Gender NVARCHAR(MAX),
+   @Hobbies NVARCHAR(MAX),
+      @RoleId INT
+
+
+AS
+BEGIN
+   SET NOCOUNT ON;
+
+   UPDATE Usertbl
+   SET 
+       FullName = @FullName,
+       MobileNumber = @MobileNumber,
+       Email = @Email,
+       Password = @Password,
+       DateOfBirth = @DateOfBirth,
+       Gender = @Gender,
+       Hobbies = @Hobbies,
+	   RoleId = @RoleId
+   WHERE ID = @ID;
+END
+GO
