@@ -1,0 +1,87 @@
+﻿@model UserModel
+@if(Model.ID == 0){
+<h2>Registration</h2>
+}
+else{
+<h2>Edit Customer Details</h2>
+}
+@using (Html.BeginForm("Register", "User", FormMethod.Post))
+{
+    @Html.ValidationSummary()
+    @Html.HiddenFor(m => m.ID)
+    <div class="form-group">
+        Full Name
+        @Html.TextBoxFor(m => m.FullName, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.MobileNumber)
+        @Html.TextBoxFor(m => m.MobileNumber, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.MobileNumber, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Email)
+        @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Password)
+        @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Confirmpwd)
+        @Html.PasswordFor(m => m.Confirmpwd, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Confirmpwd, "", new { @class = "text-danger" })
+
+    </div>
+    <div class="form-group">
+                <label asp-for="DOB" class="control-label"></label>
+                <input asp-for="DOB" class="form-control" />
+                <span asp-validation-for="DOB" class="text-danger"></span>
+            </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Gender)
+        <br />
+        @Html.RadioButtonFor(m => m.Gender, "Male") Male
+        @Html.RadioButtonFor(m => m.Gender, "Female") Female
+        @Html.ValidationMessageFor(m => m.Gender, "", new { @class = "text-danger" })
+    </div>
+    <div class="form-group">
+        <label asp-for="Hobbies" class="control-label">Hobbies:</label>
+        <br />
+        <label><input type="checkbox" name="Hobbies" value="Dancing" /> Dancing</label>
+        <label><input type="checkbox" name="Hobbies" value="Reading" /> Reading</label>
+        <label><input type="checkbox" name="Hobbies" value="Coding" /> Coding</label>
+        <span asp-validation-for="Hobbies" class="text-danger"></span>
+    </div>
+    @if (ViewBag.Countries != null)
+    {
+        <div class="form-group">
+            @Html.LabelFor(m => m.Country)
+            <br />
+            @Html.DropDownListFor(m => m.Country, new SelectList(ViewBag.Countries), "Select Country", new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.Country, "", new { @class = "text-danger" })
+        </div>
+    }
+
+    <br />
+    <button type="submit" class="btn btn-primary">Save</button>
+}
+<p>Already have an account? <a href="@Url.Action("Login", "User")">Login here</a>.</p>
+@*@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $(".datepicker").datepicker({
+                dateFormat: "yy-mm-dd",
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "-100:+0"
+            });
+        });
+    </script>
+}*@

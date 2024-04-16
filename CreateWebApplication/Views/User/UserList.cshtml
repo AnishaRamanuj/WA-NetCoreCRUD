@@ -1,0 +1,70 @@
+﻿@model List<UserModel>
+@*<li class="nav-item">
+    <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Logout">Logout</a>
+    <button type="submit" asp-area="" asp-controller="User" asp-action="Logout"  class="btn btn-primary">Logout</button>
+</li>*@
+@{
+    int lastLoggedInUserId = ViewBag.LastLoggedInUserId;
+    int LastLoggedInRoleId = ViewBag.LastLoggedInRoleId;
+}
+<h2>Users Details</h2>
+
+@if (TempData["DeleteError"] != null)
+{
+    <div class="alert alert-danger">@TempData["DeleteError"]</div>
+}
+@if (TempData["UpdateSuccess"] != null)
+{
+    <div class="alert alert-success">@TempData["UpdateSuccess"]</div>
+}
+@if (TempData["LoginSuccess"] != null)
+{
+    <div class="alert alert-success">@TempData["LoginSuccess"]</div>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th style="background-color:pink;">ID</th>
+            <th style="background-color:pink;">Full Name</th>
+            <th style="background-color:pink;">Mobile Number</th>
+            <th style="background-color:pink;">Email</th>
+            <th style="background-color:pink;"> Password</th>
+            <th style="background-color:pink;">Date of Birth</th>
+            <th style="background-color:pink;">Gender</th>
+            <th style="background-color:pink;">Hobbies</th>
+            <th style="background-color:pink;">Role ID</th>
+            <th style="background-color:pink;">Country</th>
+            <th style="background-color:pink;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.ID</td>
+                <td>@user.FullName</td>
+                <td>@user.MobileNumber</td>
+                <td>@user.Email</td>
+                <td>@user.Password</td>
+                <td>@(user.DOB.HasValue ? user.DOB.Value.ToShortDateString() : "")</td>
+                <td>@user.Gender</td>
+                <td>@user.Hobbies</td>
+                <td>@user.RoleId</td>
+                <td>@user.Country</td>
+                <td>
+                    @if (user.ID == lastLoggedInUserId && user.RoleId == 2)
+                    {
+                     <a href="@Url.Action("Edit", "User", new { user.ID })">Edit</a>
+                    <a href="@Url.Action("Delete", "User", new { id = user.ID })" onclick="return confirm('Are you sure you want to delete this user?')">Delete</a>
+                    }
+                    else if (LastLoggedInRoleId == 1)
+                    {
+                        <a href="@Url.Action("Edit", "User", new { user.ID })">Edit</a>
+                        <a href="@Url.Action("Delete", "User", new { id = user.ID })" onclick="return confirm('Are you sure you want to delete this user?')">Delete</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

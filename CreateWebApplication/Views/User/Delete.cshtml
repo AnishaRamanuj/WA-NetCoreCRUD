@@ -1,0 +1,14 @@
+﻿@model UserModel
+
+<h2>Delete User</h2>
+
+<p>Are you sure you want to delete the user?</p>
+@if (TempData["DeleteSuccess"] != null)
+{
+    <div class="alert alert-success">@TempData["DeleteSuccess"]</div>
+}
+@using (Html.BeginForm("Delete", "User", FormMethod.Post))
+{
+    @Html.HiddenFor(m => m.ID)
+    <button type="submit" class="btn btn-danger">Delete</button>
+}

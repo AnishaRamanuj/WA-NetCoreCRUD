@@ -1,0 +1,35 @@
+﻿@model LoginModel
+
+<h2>Login</h2>
+
+@if (TempData["RegisterSuccess"] != null)
+{
+    <div class="alert alert-success">@TempData["RegisterSuccess"]</div>
+}
+@if (TempData["DeleteSuccess"] != null)
+{
+    <div class="alert alert-success">@TempData["DeleteSuccess"]</div>
+}
+@using (Html.BeginForm("Login", "User", FormMethod.Post))
+{
+    @Html.ValidationSummary()
+
+    <div class="form-group col-6">
+         Mobilenumber/ Email
+        @Html.TextBoxFor(m => m.UserName, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.UserName, "", new { @class = "text-danger" })
+        </div>
+
+    <div class="form-group col-6">
+        @Html.LabelFor(m => m.Password)
+        @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+        </div>
+        <br />
+        <button type="submit" class="btn btn-primary">Login</button>
+}
+<p>Don't have an account? <a href="@Url.Action("Register", "User")">Register here</a>.</p>
+@if (ViewBag.Message != null)
+{
+        <p>@ViewBag.Message</p>
+}
